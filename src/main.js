@@ -14,7 +14,7 @@ function calculateSimpleRevenue(purchase, _product) {
 
     const revenue = fullPrice * (1 - decimalDiscount);
 
-    return revenue;
+    return parseFloat(revenue.toFixed(2));
 }
 
 /**
@@ -95,7 +95,7 @@ function analyzeSalesData(data, options) {
             record.items.forEach(item => {
                 recordRevenue += calculateRevenue(item);
             });
-            sellerStats.revenue += recordRevenue;
+            sellerStats.revenue = parseFloat((sellerStats.revenue + recordRevenue).toFixed(2));
         }
         
         record.items.forEach(item => {
@@ -107,7 +107,7 @@ function analyzeSalesData(data, options) {
 
             const sellerStats = stats.find(value => value.id === seller.id);
             if (sellerStats) {
-                sellerStats.profit += rev - cost;
+                sellerStats.profit = parseFloat((sellerStats.profit + (rev - cost)).toFixed(2));
 
                 if (!sellerStats.products_sold[item.sku]) {
                     sellerStats.products_sold[item.sku] = 0;
