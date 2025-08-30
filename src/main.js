@@ -89,15 +89,12 @@ function analyzeSalesData(data, options) {
         const sellerStats = stats.find(item => item.id === seller.id);
         if (sellerStats) {
             sellerStats.sales_count++;
+            sellerStats.revenue += record.total_amount;
             
-            // Суммируем выручку от всех товаров в чеке
-            let recordRevenue = 0;
             record.items.forEach(item => {
-                const rev = calculateRevenue(item);
-                recordRevenue += rev;
-                
                 const product = productIndex[item.sku];
                 const cost = product.purchase_price * item.quantity;
+                const rev = calculateRevenue(item);
                 sellerStats.profit += rev - cost;
 
                 if (!sellerStats.products_sold[item.sku]) {
@@ -105,7 +102,6 @@ function analyzeSalesData(data, options) {
                 }
                 sellerStats.products_sold[item.sku] += item.quantity;
             });
-            sellerStats.revenue += recordRevenue;
         }
     });
 
