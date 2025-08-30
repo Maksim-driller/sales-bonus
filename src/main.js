@@ -60,7 +60,7 @@ function analyzeSalesData(data, options) {
     }
 
     // @TODO: Проверка наличия опций
-    if (!typeof options !== "object"
+    if (typeof options !== "object"
     || typeof calculateRevenue !== "function"
     || typeof calculateBonus !== "function") {
         throw new Error("Неверные параметры")
