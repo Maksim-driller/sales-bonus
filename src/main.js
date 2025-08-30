@@ -8,13 +8,13 @@ function calculateSimpleRevenue(purchase, _product) {
    // @TODO: Расчет выручки от операции
     const { discount, sale_price, quantity } = purchase;
 
-    const decimalDiscount = discount / 100
+    const decimalDiscount = discount / 100;
 
-    const fullPrice = sale_price * quantity
+    const fullPrice = sale_price * quantity;
 
-    const revenue = fullPrice * (1 - decimalDiscount)
+    const revenue = fullPrice * (1 - decimalDiscount);
 
-    return revenue
+    return revenue;
 }
 
 /**
@@ -83,12 +83,18 @@ function analyzeSalesData(data, options) {
     // @TODO: Расчет выручки и прибыли для каждого продавца
     data.purchase_records.forEach(record => {
         const seller = sellerIndex[record.seller_id];
-        stats.map(item => {
-            if (item.id === seller.id) {
-                item.sales_count++;
-                item.revenue += +record.total_amount;
-            }
-        })
+        const sellerStats = stats.find(item => item.id === seller.id);
+        if (sellerStats) {
+            sellerStats.sales_count++;
+            
+            // Суммируем выручку от всех товаров в чеке
+            let recordRevenue = 0;
+            record.items.forEach(item => {
+                recordRevenue += calculateRevenue(item);
+            });
+            sellerStats.revenue += recordRevenue;
+        }
+        
         record.items.forEach(item => {
             const product = productIndex[item.sku];
 
@@ -96,16 +102,15 @@ function analyzeSalesData(data, options) {
 
             const rev = calculateRevenue(item);
 
-            stats.map(value => {
-                if (value.id === seller.id) {
-                    value.profit += rev - cost;
+            const sellerStats = stats.find(value => value.id === seller.id);
+            if (sellerStats) {
+                sellerStats.profit += rev - cost;
 
-                    if (!value.products_sold[item.sku]) {
-                        value.products_sold[item.sku] = 0;
-                    }
-                    value.products_sold[item.sku] += item.quantity;
+                if (!sellerStats.products_sold[item.sku]) {
+                    sellerStats.products_sold[item.sku] = 0;
                 }
-            })
+                sellerStats.products_sold[item.sku] += item.quantity;
+            }
         });
     });
 
@@ -118,7 +123,7 @@ function analyzeSalesData(data, options) {
         seller.top_products = Object.entries(seller.products_sold)
             .sort((a, b) => b[1] - a[1])
             .filter((item, index) => index < 10)
-            .flatMap(item => {
+            .map(item => {
                 return { sku: item[0], quantity: item[1] }
             });// Формируем топ-10 товаров
     })
