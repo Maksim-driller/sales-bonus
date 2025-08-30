@@ -14,7 +14,7 @@ function calculateSimpleRevenue(purchase, _product) {
 
     const revenue = fullPrice * (1 - decimalDiscount);
 
-    return parseFloat(revenue.toFixed(2));
+    return revenue;
 }
 
 /**
@@ -32,13 +32,13 @@ function calculateBonusByProfit(index, total, seller) {
     // 0% — для продавца на последнем месте.
     const { profit } = seller
     if (index === 0) {
-        return parseFloat((profit * 0.15).toFixed(2));
+        return +(profit * 0.15).toFixed(2);
     } else if (index === 1 || index === 2) {
-        return parseFloat((profit * 0.10).toFixed(2));
+        return +(profit * 0.10).toFixed(2);
     } else if (index === total - 1) {
         return 0;
     } else { // Для всех остальных
-        return parseFloat((profit * 0.05).toFixed(2));
+        return +(profit * 0.05).toFixed(2);
     }
 
 }
@@ -95,7 +95,7 @@ function analyzeSalesData(data, options) {
             record.items.forEach(item => {
                 recordRevenue += calculateRevenue(item);
             });
-            sellerStats.revenue = parseFloat((sellerStats.revenue + recordRevenue).toFixed(2));
+            sellerStats.revenue += recordRevenue;
         }
         
         record.items.forEach(item => {
@@ -107,7 +107,7 @@ function analyzeSalesData(data, options) {
 
             const sellerStats = stats.find(value => value.id === seller.id);
             if (sellerStats) {
-                sellerStats.profit = parseFloat((sellerStats.profit + (rev - cost)).toFixed(2));
+                sellerStats.profit += rev - cost;
 
                 if (!sellerStats.products_sold[item.sku]) {
                     sellerStats.products_sold[item.sku] = 0;
@@ -135,8 +135,8 @@ function analyzeSalesData(data, options) {
     return stats.map(seller => ({
         seller_id: seller.id,
         name: seller.name,
-        revenue: parseFloat(seller.revenue.toFixed(2)),
-        profit: parseFloat(seller.profit.toFixed(2)),
+        revenue: +seller.revenue.toFixed(2),
+        profit: +seller.profit.toFixed(2),
         sales_count: seller.sales_count,
         top_products: seller.top_products,
         bonus: seller.bonus,
